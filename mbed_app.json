@@ -1,0 +1,24 @@
+{
+    "config": {
+        "device_guid": {
+            "value": "\"AD8D34E1-EADC-40F3-8B78-F8FA29A2F260\""
+        },
+        "hostname": {
+            "value": "\"iot-server3-spring-app-20230123231122.azuremicroservices.io\""
+        },
+        "data_url": {
+            "value": "\"https://iot-server3-spring-app-20230123231122.azuremicroservices.io/api/data/insertDeviceData\""
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "platform.stdio-baud-rate": 115200,
+            "mbed-trace.enable": true,
+            "mbed-trace.max-level": "TRACE_LEVEL_DEBUG"
+        },
+        "DISCO_F413ZH": {
+            "target.components_add": ["ism43362"],
+            "target.macros_add" : ["MBEDTLS_SHA1_C"]
+        }
+    }
+}

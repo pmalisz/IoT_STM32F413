@@ -1,0 +1,9 @@
+.build
+.mbed
+projectfiles
+*.py*
+mbed-os
+BUILD
+
+mbed-http
+wifi-ism43362
