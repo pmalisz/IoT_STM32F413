@@ -2,6 +2,7 @@
 #include "cert.hpp"
 #include "https_request.h"
 #include <string>
+#include <sstream>
 
 class SocketManager {
     static constexpr size_t MAX_MESSAGE_RECEIVED_LENGTH = 100;
@@ -20,16 +21,27 @@ public:
         delete _net;
     }
 
-    void inti() {
+    void reset(NetworkInterface *net){
+        _net = net;
+        _socket = new TLSSocket();
+        init();
+    }
+
+    void init() {
         open_socket();
         set_tls_cert_and_hostname();
         connect_socket();
     }
 
-    void post_data(unsigned short data) {
-        std::string var = "{ \"guid\": \"" + std::string(MBED_CONF_APP_DEVICE_GUID) + "\", \"dataInt\": " + std::to_string(data) + "}";
-        printf("posting: %s", var.c_str());
-        post(MBED_CONF_APP_DATA_URL, &var);
+    void sync_date() {
+        string date = get(MBED_CONF_APP_SYNC_DATE_URL);
+        set_time(stoi(date));
+    }
+
+    int post_data(unsigned short data) {
+        string var = "{\"guid\": \"" + string(MBED_CONF_APP_DEVICE_GUID) + "\", \"epochDate\": " + to_string(time(NULL)) + ", \"dataInt\": " + to_string(data) + "}";
+        printf("posting: %s\n", var.c_str());
+        return post(MBED_CONF_APP_DATA_URL, &var);
     }
 private:
     void open_socket(){
@@ -84,34 +96,37 @@ private:
         return true;
     }
 
-    void post(const char* url, string *body) {
+    int post(const char* url, string *body) {
         HttpsRequest *post_req = new HttpsRequest(_socket, HTTP_POST, url);
         post_req->set_header("Content-Type", "application/json");
 
         HttpResponse* post_res = post_req->send(body->c_str(), strlen(body->c_str()));
         if (!post_res) {
             printf("HttpRequest failed (error code %d)\n", post_req->get_error());
-            return;
+            return post_req->get_error();
         }
 
         printf("\n----- HTTPS POST response -----\n");
         dump_response(post_res);
-
+    
         delete post_req;
+        return 0;
     }
 
-    void get(const char* url) {
+    string get(const char* url) {
         HttpsRequest* get_req = new HttpsRequest(_socket, HTTP_GET, url);
 
         HttpResponse* get_res = get_req->send();
         if (!get_res) {
             printf("HttpRequest failed (error code %d)\n", get_req->get_error());
-            return;
+            return "";
         }
         printf("\n----- HTTPS GET response -----\n");
         dump_response(get_res);
 
+        string body = get_res->get_body_as_string();
         delete get_req;
+        return body;
     }
 
     void dump_response(HttpResponse* res) {

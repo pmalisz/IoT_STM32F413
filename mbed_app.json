@@ -1,5 +1,11 @@
 {
     "config": {
+        "AP_SSID": {
+            "value": "\"IOT\""
+        },
+        "AP_password": {
+            "value": "\"1qazxsW@\""
+        },
         "device_guid": {
             "value": "\"AD8D34E1-EADC-40F3-8B78-F8FA29A2F260\""
         },
@@ -8,6 +14,9 @@
         },
         "data_url": {
             "value": "\"https://iot-server3-spring-app-20230123231122.azuremicroservices.io/api/data/insertDeviceData\""
+        },
+        "sync_date_url": {
+            "value": "\"https://iot-server3-spring-app-20230123231122.azuremicroservices.io/api/data/syncDate\""
         }
     },
     "target_overrides": {

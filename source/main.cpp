@@ -20,7 +20,7 @@ void printNetworkInfo(){
 
 int main()
 {
-    int result = wifi.setCredentialsForAP("IOT", "1qazxsW@", NSAPI_SECURITY_WPA_WPA2);
+    int result = wifi.setCredentialsForAP(MBED_CONF_APP_AP_SSID, MBED_CONF_APP_AP_PASSWORD, NSAPI_SECURITY_WPA_WPA2);
     do {
         wifi.startSoftAP();
         result = wifi.listenForConnection();
@@ -34,14 +34,18 @@ int main()
     printNetworkInfo();
 
     SocketManager *socketManager = new SocketManager(&wifi);
-    socketManager->inti();
+    socketManager->init();
 
+    socketManager->sync_date();
     while(true){
         if(button.read()){
             NVIC_SystemReset();
         }
 
-        socketManager->post_data(in.read_u16());
+        result = socketManager->post_data(in.read_u16());
+        if(result != 0){
+            socketManager->reset(&wifi);
+        }
         ThisThread::sleep_for(5s);
     }
 }
